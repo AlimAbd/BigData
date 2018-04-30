@@ -1,0 +1,96 @@
+    ul,
+    li {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        float: left;
+    }
+
+    html {
+        height: 100%;
+        width:100%;
+    }
+
+    body {
+        width: 100%;
+        height: 100%;
+        margin: 0px;
+        padding: 0px;
+        font-family: "微软雅黑";
+        min-width: 1400px;
+    }
+    #console {
+        float: left;
+        height: 100%;
+        width: 15%;
+    }
+    .container {
+        float: right;
+        height: 100%;
+        width: 85%;
+    }
+    #map,
+    #chart{
+        width: 100%;
+        height: 50%;
+    }
+
+    .tools{
+        border-bottom:solid 1px;
+        height: 40px;
+        margin-bottom: 15px;
+    }
+    #hand,#rect{
+        display: inline-block;
+        height: 40px;
+        width:40px;
+        background-size:40px;
+        cursor: pointer;
+    }
+    .hand{
+        background:url(../images/hand.svg);
+    }
+    .hand-checked{
+        background:url(../images/hand-hover.svg);
+    }
+    .rect{
+        background: url(../images/rect.svg);
+    }
+    .rect-checked{
+        background: url(../images/rect-hover.svg);
+    }
+    @media screen and (max-width:1400px){
+        #console{
+            width: 250px;
+        }
+        .container{
+            width: 1150px;
+        }
+    } 
+    .btns button{
+        /*width: 100%;*/
+        margin-top:3px;
+        height: 30px;
+        width:50px;
+        border-radius:8px;
+        background: #f5f5f5;
+        outline: none;
+        border: none;
+        border-top:1px solid #c5c5c5;
+        border-bottom:1px solid #c5c5c5;
+        cursor: pointer;
+    }
+    .btns button:hover{
+        background: #0c88e8;
+    }
+    .unActive{
+        background: #f5f5f5;
+    }
+    .unActive:hover{
+        background: #0c88e8;
+        color: white;
+    }
+    .active{
+        background: #0c88e8 !important;
+        color: white;
+    }

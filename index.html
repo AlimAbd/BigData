@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=kyZyufX67f6ElXpFvRAlevSh3Up9v3tv"></script>
+    <!--加载鼠标绘制工具-->
+    <script type="text/javascript" src="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.js"></script>
+    <link rel="stylesheet" href="http://api.map.baidu.com/library/DrawingManager/1.4/src/DrawingManager_min.css" />
+    <script type="text/javascript" src="http://api.map.baidu.com/library/Heatmap/2.0/src/Heatmap_min.js"></script>
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.js"></script>
+    <script src="https://cdn.bootcss.com/echarts/4.0.4/echarts-en.common.js"></script>
+    <title>热力图功能示例</title>
+</head>
+
+<body>
+    <div id="console">
+        <div class="tools">
+            <div id="hand" class="hand-checked" onclick="changeTool(this)"></div>
+            <div id="rect" class="rect" onclick="changeTool(this)"></div>
+        </div>
+        <label>2017年</label>
+        <select id="month" onchange="chDay()">
+            <option>2</option>
+            <option>3</option>
+        </select>
+        <label>月</label>
+        <select id="day">
+        </select>
+        <label>日</label>
+        <br>
+        <label>模型</label>
+        <select id="model">
+            <option value="DecisionTreeRegressor">DecisionTreeRegressor</option>
+            <option value="AdaBoostRegressor">AdaBoostRegressor</option>
+            <option value="GradientBoostingRegressor">GradientBoostingRegressor</option>
+            <option value="Lasso">Lasso</option>
+            <option value="LinearRegression">LinearRegression</option>
+            <option value="Ridge">Ridge</option>
+            <option value="RandomForestRegressor">RandomForestRegressor</option>
+            <option value="ExtraTreesRegressor">ExtraTreesRegressor</option>
+        </select>
+        <button onclick="getData()" id="search" disabled="true">查询</button>
+        <input id="showHM" type="button" onclick="openHeatmap();" disabled="disabled" value="显示热力图" />
+        <input id="hideHM" type="button" onclick="closeHeatmap();" disabled="disabled" value="隐藏热力图" />
+        <input type="button" onclick="clearIT()" value="清除">
+        <div class="btns" style="display:none">
+            <button id="b0" onclick="btnActive(this.id)">0点</button>
+            <button id="b1" onclick="btnActive(this.id)">1点</button>
+            <button id="b2" onclick="btnActive(this.id)">2点</button>
+            <button id="b3" onclick="btnActive(this.id)">3点</button>
+            <button id="b4" onclick="btnActive(this.id)">4点</button>
+            <button id="b5" onclick="btnActive(this.id)">5点</button>
+            <button id="b6" onclick="btnActive(this.id)">6点</button>
+            <button id="b7" onclick="btnActive(this.id)">7点</button>
+            <button id="b8" onclick="btnActive(this.id)">8点</button>
+            <button id="b9" onclick="btnActive(this.id)">9点</button>
+            <button id="b10" onclick="btnActive(this.id)">10点</button>
+            <button id="b11" onclick="btnActive(this.id)">11点</button>
+            <button id="b12" onclick="btnActive(this.id)">12点</button>
+            <button id="b13" onclick="btnActive(this.id)">13点</button>
+            <button id="b14" onclick="btnActive(this.id)">14点</button>
+            <button id="b15" onclick="btnActive(this.id)">15点</button>
+            <button id="b16" onclick="btnActive(this.id)">16点</button>
+            <button id="b17" onclick="btnActive(this.id)">17点</button>
+            <button id="b18" onclick="btnActive(this.id)">18点</button>
+            <button id="b19" onclick="btnActive(this.id)">19点</button>
+            <button id="b20" onclick="btnActive(this.id)">20点</button>
+            <button id="b21" onclick="btnActive(this.id)">21点</button>
+            <button id="b22" onclick="btnActive(this.id)">22点</button>
+            <button id="b23" onclick="btnActive(this.id)">23点</button>
+        </div>
+    </div>
+    <div class="container">
+        <div id="map"></div>
+        <div id="chart"></div>
+    </div>
+</body>
+
+</html>
+<script src="js/lineNbarCharts.js"></script>
+<script type="text/javascript">
+    var urlBase = 'http://192.168.1.101:8086/geohash'
+
+var mon = document.getElementById('month');
+var day = document.getElementById('day');
+var model = document.getElementById('model');
+chDay();
+
+function chDay() {
+    var days = mon.value == 2 ? 29 : 32;
+    day.innerHTML = '';
+    for (var i = 1; i < days; i++) {
+        var op = document.createElement('option');
+        op.innerHTML = i;
+        day.appendChild(op);
+    }
+}
+
+//TollBox
+function changeTool(e) {
+    var h = document.getElementById('hand');
+    var r = document.getElementById('rect');
+    if (e.id == 'hand') {
+        if (h.className = 'hand-checked') {
+            r.className = 'rect';
+            drawingManager.close();
+        } else {
+            h.className = 'hand-checked';
+            r.className = 'rect';
+            drawingManager.close();
+        }
+    } else if (e.id == 'rect') {
+        if (r.className = 'rect-checked') {
+            h.className = 'hand';
+            drawingManager.open();
+            drawingManager.setDrawingMode(BMAP_DRAWING_RECTANGLE);
+        } else {
+            h.className = 'hand';
+            r.className = 'rect-checked';
+            drawingManager.open();
+            drawingManager.setDrawingMode(BMAP_DRAWING_RECTANGLE);
+        }
+    }
+}
+//Bmap init
+var map = new BMap.Map("map"); // 创建地图实例
+
+var point = new BMap.Point(113.267261, 23.144291);
+map.centerAndZoom(point, 15); // 初始化地图，设置中心点坐标和地图级别
+map.enableScrollWheelZoom(); // 允许滚轮缩放
+
+function reqRealdata(lat,log){
+            var date = '2017-' + mon.value + '-' + day.value;
+            if (bLng && bLat && tLng && tLat) {
+                var area = {
+                    date: date, //格式为 2017-3-7
+                    lat: lat, //以下为double格式
+                    log: log,
+                    model: model.value
+                };
+                console.log(JSON.stringify(area));
+                $.ajax({
+                    type: 'POST',
+                    url: urlBase+'/point',
+                    dataType: 'json',
+                    contentType: "application/json",
+                    data: JSON.stringify(area),
+                    success: function(re) {
+                        showRealLine(re);
+                        console.log(re);
+                    },
+                    error: function(re) {
+                        alert(re.textStatus);
+                    }
+                });
+            }
+}
+
+
+            function showRealLine(data) {
+                if (!myChart) {
+                    return;
+                }
+                var mc = myChart.getOption();
+                mc.series[0].data = data[24];
+                mc.series[1].data = data[24];
+                mc.series[2].data = data[25];
+                myChart.setOption(mc);
+            }
+
+            //回调获得覆盖物信息  
+            var overlaycomplete = function(e) { 
+
+                if (e.drawingMode == BMAP_DRAWING_RECTANGLE) {
+                    var lt = new BMap.Point(e.overlay.getPath()[3].lng, e.overlay.getPath()[3].lat);
+                    var lm = new BMap.Marker(lt);
+
+                    var rt = new BMap.Point(e.overlay.getPath()[1].lng, e.overlay.getPath()[1].lat);
+                    var rm = new BMap.Marker(rt);
+                    map.addOverlay(lm);
+                    map.addOverlay(rm);
+
+                    topLng = e.overlay.getPath()[1].lng;
+                    topLat = e.overlay.getPath()[1].lat;
+
+                    botmLng = e.overlay.getPath()[3].lng;
+                    botmLat = e.overlay.getPath()[3].lat;
+
+
+                    if (botmLng && botmLat && topLng && topLat) {
+
+                        document.getElementById('search').disabled = false;
+                        tLng = topLng > botmLng ? topLng : botmLng;
+                        tLat = topLat > botmLat ? topLat : botmLat;
+
+                        bLng = botmLng < topLng ? botmLng : topLng;
+                        bLat = botmLat < topLat ? botmLat : topLat;
+
+                        if(tLng==bLng&&tLat==bLat){
+                            reqRealdata(tLat,tLng);
+                            return;
+                        }
+                    }
+                }
+            };
+
+            var styleOptions = {
+                strokeColor: "#e74c3c", //边线颜色。 
+                strokeWeight: 3, //边线的宽度，以像素为单位。  
+                strokeOpacity: 0, //边线透明度，取值范围0 - 1。  
+                fillOpacity: 0.1, //填充的透明度，取值范围0 - 1。  
+                strokeStyle: 'solid' //边线的样式，solid或dashed。  
+            }
+            //实例化鼠标绘制工具  
+            var drawingManager = new BMapLib.DrawingManager(map, {
+                isOpen: false, //是否开启绘制模式  
+                enableDrawingTool: false, //是否显示工具栏  
+                drawingToolOptions: {
+                    anchor: BMAP_ANCHOR_TOP_RIGHT, //位置  
+                    offset: new BMap.Size(5, 5), //偏离值  
+                    scale: 0.8 //工具栏缩放比例  
+                },
+                rectangleOptions: styleOptions //矩形的样式  
+            });
+            //添加鼠标绘制工具监听事件，用于获取绘制结果  
+            drawingManager.addEventListener('overlaycomplete', overlaycomplete);
+
+            function clearIT() {
+                map.clearOverlays();
+                document.getElementById('search').disabled = true;
+                document.getElementsByClassName('btns')[0].style.display = 'none';
+                heatmapOverlay = new BMapLib.HeatmapOverlay({ "radius": 20 });
+                map.addOverlay(heatmapOverlay);
+                document.getElementById('hand').onclick();
+
+            }
+
+            //Ajax request and getData
+            function getData() {
+                var date = '2017-' + mon.value + '-' + day.value;
+                if (bLng && bLat && tLng && tLat) {
+                    var area = {
+                        date: date, //格式为 2017-3-7
+                        latmin: bLat, //以下为double格式
+                        lomin: bLng,
+                        latmax: tLat,
+                        lomax: tLng,
+                        model: model.value
+                    };
+                    $.ajax({
+                        type: 'POST',
+                        url:urlBase+'/predict',
+                        dataType: 'json',
+                        contentType: "application/json",
+                        data: JSON.stringify(area),
+                        success: function(re) {
+                            showHM(re);
+                            showChart(re[25]);
+                        },
+                        error: function(re) {
+                            alert(re.textStatus);
+                        }
+                    });
+                }
+            }
+
+            heatmapOverlay = new BMapLib.HeatmapOverlay({ "radius": 20 });
+            map.addOverlay(heatmapOverlay);
+
+            function showHM(res) {
+                document.getElementsByClassName('btns')[0].style.display = 'block';
+                $("#b0").click(function() { changeHM(res[0]) });
+                $("#b1").click(function() { changeHM(res[1]) });
+                $("#b2").click(function() { changeHM(res[2]) });
+                $("#b3").click(function() { changeHM(res[3]) });
+                $("#b4").click(function() { changeHM(res[4]) });
+                $("#b5").click(function() { changeHM(res[5]) });
+                $("#b6").click(function() { changeHM(res[6]) });
+                $("#b7").click(function() { changeHM(res[7]) });
+                $("#b8").click(function() { changeHM(res[8]) });
+                $("#b9").click(function() { changeHM(res[9]) });
+                $("#b10").click(function() { changeHM(res[10]) });
+                $("#b11").click(function() { changeHM(res[11]) });
+                $("#b12").click(function() { changeHM(res[12]) });
+                $("#b13").click(function() { changeHM(res[13]) });
+                $("#b14").click(function() { changeHM(res[14]) });
+                $("#b15").click(function() { changeHM(res[15]) });
+                $("#b16").click(function() { changeHM(res[16]) });
+                $("#b17").click(function() { changeHM(res[17]) });
+                $("#b18").click(function() { changeHM(res[18]) });
+                $("#b19").click(function() { changeHM(res[19]) });
+                $("#b20").click(function() { changeHM(res[20]) });
+                $("#b21").click(function() { changeHM(res[21]) });
+                $("#b22").click(function() { changeHM(res[22]) });
+                $("#b23").click(function() { changeHM(res[23]) });
+
+            }
+
+            function btnActive(btn) {
+                for (var i = 0; i < 24; i++) {
+                    if ($('#b' + i).attr('class') == 'active') {
+                        $('#b' + i).removeClass('active');
+                    }
+                    $('#b' + i).addClass('unActive');
+                }
+
+                $('#' + btn).removeClass('unActive');
+                $('#' + btn).addClass('active');
+            }
+
+            function changeHM(time) {
+                document.getElementById('hideHM').disabled = false;
+                document.getElementById('showHM').disabled = false;
+                console.log(time);
+                heatmapOverlay.setDataSet({ data: time, max: 100 });
+            }
+
+            function showChart(cData) {
+                if (!myChart) {
+                    return;
+                }
+                var a = [0];
+                var mc = myChart.getOption();
+                mc.series[0].data = cData;
+                mc.series[1].data = cData;
+
+                mc.series[2].data = a;
+                myChart.setOption(mc);
+            }
+
+            //详细的参数,可以查看heatmap.js的文档 https://github.com/pa7/heatmap.js/blob/master/README.md
+            //参数说明如下:
+            /* visible 热力图是否显示,默认为true
+                 * opacity 热力的透明度,1-100
+                 * radius 势力图的每个点的半径大小   
+                 * gradient  {JSON} 热力图的渐变区间 . gradient如下所示
+                 *  {
+                        .2:'rgb(0, 255, 255)',
+                        .5:'rgb(0, 110, 255)',
+                        .8:'rgb(100, 0, 255)'
+                    }
+                    其中 key 表示插值的位置, 0~1. 
+                        value 为颜色值. 
+                 */
+
+            //是否显示热力图
+            function openHeatmap() {
+                heatmapOverlay.show();
+            }
+
+            function closeHeatmap() {
+                heatmapOverlay.hide();
+            }
+
+            function setGradient() {
+                /*格式如下所示:
+                    {
+                        0:'rgb(102, 255, 0)',
+                        .5:'rgb(255, 170, 0)',
+                        1:'rgb(255, 0, 0)'
+                    }*/
+                var gradient = {
+                    0: 'rgb(102, 255, 0)',
+                    .5: 'rgb(255, 170, 0)',
+                    1: 'rgb(255, 0, 0)'
+                };
+                var colors = document.querySelectorAll("input[type='color']");
+                colors = [].slice.call(colors, 0);
+                colors.forEach(function(ele) {
+                    gradient[ele.getAttribute("data-key")] = ele.value;
+                });
+                heatmapOverlay.setOptions({ "gradient": gradient });
+            }
+</script>
