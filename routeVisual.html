@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=kyZyufX67f6ElXpFvRAlevSh3Up9v3tv"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/Heatmap/2.0/src/Heatmap_min.js"></script>
+    <script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.js"></script>
+    <script src="js/BMapLib_Heatmap.js"></script>
+    <title>热力图功能示例</title>
+    <style type="text/css">
+        #chart{
+            width: 100%;
+            height: 100%
+        }
+    </style>
+</head>
+
+<body>
+        <div id="chart"></div>
+</body>
+
+</html>
+<script type="text/javascript">
+    var urlBase = 'http://192.168.1.101:8086/roadgps';
+
+
+var map = new BMap.Map("chart"); // 创建地图实例
+
+var point = new BMap.Point(113.267261, 23.144291);
+map.centerAndZoom(point, 15); // 初始化地图，设置中心点坐标和地图级别
+map.enableScrollWheelZoom(); // 允许滚轮缩放
+
+heatmapOverlay = new BMapLib.HeatmapOverlay({ "radius": 40 });
+map.addOverlay(heatmapOverlay);
+
+getData();
+function getData(){
+                $.ajax({
+                    url: urlBase,
+                    type: 'GET',
+                    dataType: 'json',
+                    contentType: "application/json",
+                    success: function(re) {
+                        heatmapOverlay.setDataSet({ data: re, max: 100 });
+                    },
+                    error: function(re) {
+                        alert(re.textStatus);
+                    }
+                });
+            }
+
+</script>
